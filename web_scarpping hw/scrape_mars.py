@@ -7,7 +7,7 @@ import time
 # Create a dictionary for all of the scraped data
 mars_data = {}
 
-def scrape():
+def scrape_it():
     #Latest News
     response = requests.get('https://mars.nasa.gov/news/').text
 
