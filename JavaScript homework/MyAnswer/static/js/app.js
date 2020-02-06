@@ -20,8 +20,10 @@ var ufoSight = data;
 var button = d3.select("button");
 
 button.on("click", function() {
-  function removeTableBody(){
-    tbody.remove();
+  var table = document.getElementById("ufo-table");
+  for(var i = table.rows.length - 1; i > 0; i--)
+  {
+      table.deleteRow(i);
   }
   
   // Select the input element and get the raw HTML node
