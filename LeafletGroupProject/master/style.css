@@ -1,0 +1,16 @@
+.center {
+    text-align: center;
+    display: block;
+    margin: 10px auto 10px auto;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+  }
+  
+#map,
+body,
+html {
+    height: 200%;
+}
