@@ -1,6 +1,8 @@
 //assign urls to variables
 var missingperson_data = "missingperson.geojson"
 
+var today = new Date();
+
 mapboxgl.accessToken = "pk.eyJ1IjoiY2hhcmxlc2Vicmlua2xleSIsImEiOiJjazdheW4waHgxOTUxM2Zxa2NqY2VpMXA4In0.hJ8wu5RhmkCrfkjo9BUSzg";
 var map = new mapboxgl.Map({
   container: 'map',
@@ -20,41 +22,42 @@ map.on('load', function() {
         id: 'missinperson-heat',
         type: 'heatmap',
         source: 'missingperson',
-        maxzoom: 15,
+        maxzoom: 9,
         paint: {
 
           // increase intensity as zoom level increases
-          'heatmap-intensity': {
-            stops: [
-              [11, 1],
-              [15, 3]
-            ]
-          },
+          'heatmap-intensity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              0,1,9,3
+            ],
+
           // assign color values be applied to points depending on their density
           'heatmap-color': [
             'interpolate',
             ['linear'],
             ['heatmap-density'],
             0, 'transparent',
-            0.1, 'blue',
-            0.5, 'yellow',
+            0.05, 'blue',
+            0.3, 'yellow',
             1.0, 'red'
           ],
           // increase radius as zoom increases
-          'heatmap-radius': {
-            stops: [
-              [11, 15],
-              [15, 20]
-            ]
-          },
+          'heatmap-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              0,5,9,20
+            ],
+          
           // decrease opacity to transition into the circle layer
-          'heatmap-opacity': {
-            default: 1,
-            stops: [
-              [14, 1],
-              [15, 0]
-            ]
-          },
+          'heatmap-opacity': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              7,1,9,1
+          ],
         }
       }, 'waterway-label'
     );
@@ -64,38 +67,29 @@ map.on('load', function() {
         id: 'missingperson-point',
         type: 'circle',
         source: 'missingperson',
-        minzoom: 14,
+        minzoom: 3,
         paint: {
           // increase the radius of the circle as the zoom level and date_last_seen value increases
-          'circle-radius': {
+          'circle-radius': ['-', today.getFullYear(), ['number', ['get', 'date_last_seen']/31536000000, 0]],
+/*           'circle-color': {
             property: 'date_last_seen',
-            type: 'exponential',
+            type: 'categorical',
             stops: [
-              [{ zoom: 15, value: 1 }, 5],
-              [{ zoom: 15, value: 62 }, 10],
-              [{ zoom: 22, value: 1 }, 20],
-              [{ zoom: 22, value: 62 }, 50],
+              [1950, 'red'],
+              [1970, 'red'],
+              [1980, 'pink'],
+              [1990, 'pink'],
+              [2000, 'light pink'],
+              [2010, 'light pink'],
+              [2020, 'yellow']
             ]
-          },
-          'circle-color': {
-            property: 'date_last_seen',
-            type: 'exponential',
-            stops: [
-              [1970, 'rgba(236,222,239,0)'],
-              [1980, 'rgb(236,222,239)'],
-              [1990, 'rgb(208,209,230)'],
-              [2000, 'rgb(166,189,219)'],
-              [2010, 'rgb(103,169,207)'],
-              [2020, 'rgb(28,144,153)'],
-              [2030, 'rgb(1,108,89)']
-            ]
-          },
-          'circle-stroke-color': 'white',
-          'circle-stroke-width': 1,
+          }, */
+          //'circle-stroke-color': 'white',
+          //'circle-stroke-width': 1,
           'circle-opacity': {
             stops: [
-              [14, 0],
-              [15, 1]
+              [9, 0],
+              [10, 1]
             ]
           }
         }
@@ -105,7 +99,10 @@ map.on('load', function() {
       map.on('click', 'missingperson-point', function(e) {
         new mapboxgl.Popup()
           .setLngLat(e.features[0].geometry.coordinates)
-          .setHTML('<b>Date:</b> ' + e.features[0].properties.date_last_seen)
+          .setHTML('<b>Date:</b> ' + e.features[0].properties.date_last_seen 
+          + "</p>" + '<b>Gender:</b> ' + e.features[0].properties.gender
+          + "</p>" + '<b>Age:</b> ' + e.features[0].properties.age
+          )
           .addTo(map);
       });
 
